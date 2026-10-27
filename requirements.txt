@@ -1,0 +1,9 @@
+requests>=2.31.0
+pandas>=2.1.0
+openpyxl>=3.1.2
+numpy>=1.26.0
+yfinance>=0.2.40
+python-pptx>=1.0.0
+lxml>=5.0          # pandas.read_html for auto-discovery (S&P 500 constituents)
+streamlit>=1.41    # web frontend (app.py)
+plotly>=5.18       # football field / sensitivity charts in the web frontend

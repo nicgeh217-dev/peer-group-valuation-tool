@@ -1,0 +1,53 @@
+# ----- Secrets (NEVER commit) -----
+.env
+config.json
+.credentials.json
+.streamlit/secrets.toml
+
+# ----- Personal interview-prep material — NOT part of the product, never publish -----
+DELOITTE_PITCH.md
+DEMO_DREHBUCH.md
+PITCH_SPICKZETTEL.md
+PITCH_MUSS.md
+PITCH_METHODEN.md
+PITCH_VERBESSERUNGEN.md
+CV_TOOL_BRIEFING.md
+COWORK_BRIEFING.md
+UEBUNGSFAELLE.md
+Plan_Peer_Group_Tool.md
+README.txt
+
+# ----- Generated data & outputs -----
+cache/*
+# keep one demo snapshot so "Load last results" works offline after clone
+!cache/last_run_web.json
+output/
+*.log
+last_run.log
+
+# ----- Local runtime state (per-user, rewritten on each run) -----
+settings.json
+settings_web.json
+
+# ----- Stale duplicate of the whole project -----
+peer_screener/
+
+# ----- Claude Code tooling (not part of the product) -----
+.claude/
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+env/
+build/
+dist/
+*.spec
+
+# ----- OS / editor -----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

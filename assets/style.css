@@ -1,0 +1,550 @@
+/* ==========================================================================
+   Peer Group Screening - web frontend styling
+   ------------------------------------------------------------------------
+   Design language: institutional research note / valuation workbench.
+   Not a marketing page - a dense analyst surface. Decisions, locked:
+
+     PALETTE (one accent, used everywhere or nowhere)
+       ink      #14181D   headlines, figures, primary fills
+       graphite #464C55   body copy
+       muted    #767C86   labels, captions
+       rule     #E2E4E8   hairlines (the main structural device)
+       surface  #F6F7F8   table headers, sidebar tint
+       paper    #FFFFFF   page
+       accent   #0F5C4B   deep green: active state, primary action, series 1
+       brick    #A3402C   excluded / negative
+       ochre    #8A6A16   outlier flag / caution
+
+     SHAPE      all sharp. radius 0 on every surface. no card shadows.
+                hierarchy comes from hairlines and space, not elevation.
+     TYPE       IBM Plex Sans (UI) + IBM Plex Mono (every figure).
+                Plex was cut for data-dense enterprise screens and ships
+                true tabular figures, so multiples columns align optically.
+     MOTION     120ms colour transitions on interactive states. Nothing else.
+     THEME      light, locked. Streamlit widget internals follow
+                .streamlit/config.toml; a CSS-only dark flip would apply to
+                half the surface, so the page stays single-theme by design.
+
+   Everything here is additive: if a Streamlit data-testid changes, the app
+   stays fully usable without these rules (graceful degradation).
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --pg-ink: #14181D;
+    --pg-graphite: #464C55;
+    --pg-muted: #767C86;
+    --pg-rule: #E2E4E8;
+    --pg-rule-strong: #C7CBD1;
+    --pg-surface: #F6F7F8;
+    --pg-paper: #FFFFFF;
+    --pg-accent: #0F5C4B;
+    --pg-accent-soft: #E7EFEC;
+    --pg-brick: #A3402C;
+    --pg-ochre: #8A6A16;
+    --pg-sans: "IBM Plex Sans", ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --pg-mono: "IBM Plex Mono", ui-monospace, Consolas, "Courier New", monospace;
+}
+
+/* ---- Base type ------------------------------------------------------- */
+/* Streamlit sets its own font with high specificity, so push Plex through
+   the app + sidebar containers and onto the custom classes. */
+[data-testid="stAppViewContainer"] *,
+[data-testid="stSidebar"] *,
+.pg-mast, .pg-mast *, .pg-strip, .pg-strip *, .sb-sec, .pg-footer,
+.pg-lede, .pg-methods, .pg-method-name, .pg-method-body, .pg-funnel, .pg-funnel-l {
+    font-family: var(--pg-sans) !important;
+}
+/* Two font families must survive the override above, or their glyphs break:
+   KaTeX renders the Methodology formulas with its own math faces, and
+   Streamlit draws every chevron, check and dropdown arrow as a ligature in
+   Material Symbols. Forcing Plex onto those spans prints the literal ligature
+   name ("check", "keyboard_arrow_right") instead of the icon. */
+.katex, .katex * { font-family: revert !important; }
+[data-testid="stIconMaterial"], [data-testid^="stExpanderIcon"],
+[data-testid="stIconMaterial"] *, [data-testid^="stExpanderIcon"] *,
+[data-testid="stSelectboxVirtualDropdown"] [role="option"] span:empty {
+    font-family: "Material Symbols Rounded" !important;
+}
+
+/* Formulas sit left in a research note, not centred like a textbook. */
+.katex-display, .katex-display > .katex { text-align: left !important; }
+body, [data-testid="stAppViewContainer"] {
+    color: var(--pg-graphite);
+    -webkit-font-smoothing: antialiased;
+}
+[data-testid="stAppViewContainer"] p,
+[data-testid="stAppViewContainer"] li,
+[data-testid="stCaptionContainer"] {
+    font-size: 13.5px;
+    line-height: 1.55;
+}
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {
+    color: var(--pg-muted);
+    font-size: 12px;
+}
+[data-testid="stAppViewContainer"] h1,
+[data-testid="stAppViewContainer"] h2,
+[data-testid="stAppViewContainer"] h3,
+[data-testid="stAppViewContainer"] h4,
+[data-testid="stAppViewContainer"] h5 {
+    color: var(--pg-ink);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+[data-testid="stAppViewContainer"] h5 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pg-ink);
+    margin: 22px 0 6px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--pg-rule);
+}
+[data-testid="stAppViewContainer"] strong { color: var(--pg-ink); font-weight: 600; }
+
+/* Every numeric surface is monospaced and tabular: EV columns, multiples and
+   percentages line up digit-for-digit down the column. */
+[data-testid="stDataFrame"], [data-testid="stDataFrame"] *,
+[data-testid="stTable"], [data-testid="stMetric"] [data-testid="stMetricValue"],
+.pg-strip-value, .pg-mast-meta, .pg-mast-meta *, .pg-funnel-n,
+.stNumberInput input, [data-testid="stSidebar"] input,
+[data-testid="stSidebar"] textarea {
+    font-family: var(--pg-mono) !important;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-variant-numeric: tabular-nums lining-nums;
+}
+/* column headers stay in the sans face: they are labels, not figures */
+[data-testid="stDataFrame"] [role="columnheader"],
+[data-testid="stDataFrame"] [role="columnheader"] * {
+    font-family: var(--pg-sans) !important;
+}
+
+/* ---- Strip Streamlit chrome ------------------------------------------ */
+[data-testid="stToolbar"], [data-testid="stDecoration"],
+[data-testid="stStatusWidget"], #MainMenu {
+    visibility: hidden;
+    height: 0;
+}
+/* The header itself keeps visibility: hidden inherits down, and the button that
+   re-opens a collapsed sidebar lives in there. Hiding the header outright left
+   users stuck with no way back to the inputs. Collapse the header to zero height
+   instead and hide its contents individually. */
+header[data-testid="stHeader"] {
+    height: 0;
+    background: transparent;
+    overflow: visible;
+}
+header[data-testid="stHeader"] > *:not([data-testid="stExpandSidebarButton"]) {
+    visibility: hidden;
+}
+/* Both sidebar controls must survive every rule above: without them the sidebar
+   is a one-way door. */
+[data-testid="stExpandSidebarButton"], [data-testid="stExpandSidebarButton"] *,
+[data-testid="stSidebarCollapseButton"], [data-testid="stSidebarCollapseButton"] * {
+    visibility: visible !important;
+}
+[data-testid="stExpandSidebarButton"] button {
+    color: var(--pg-ink);
+    border: 1px solid var(--pg-rule-strong);
+    border-radius: 0;
+    background: var(--pg-paper);
+}
+[data-testid="stExpandSidebarButton"] button:hover {
+    background: var(--pg-surface);
+    border-color: var(--pg-ink);
+}
+.block-container, [data-testid="stMainBlockContainer"] {
+    padding-top: 1.1rem;
+    padding-bottom: 3rem;
+    max-width: 1420px;
+}
+
+/* ---- Sidebar: control column, not a coloured panel ------------------- */
+[data-testid="stSidebar"] {
+    background: var(--pg-paper);
+    border-right: 1px solid var(--pg-rule);
+}
+[data-testid="stSidebar"] > div { padding-top: 1.1rem; }
+[data-testid="stSidebar"] label p {
+    font-size: 12px !important;
+    font-weight: 500;
+    color: var(--pg-graphite);
+}
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p { font-size: 11.5px; }
+
+/* Section headers: a ruled label, not a floating white pill. */
+.sb-sec {
+    color: var(--pg-ink);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding-bottom: 5px;
+    margin: 26px 0 10px;
+    border-bottom: 1px solid var(--pg-ink);
+}
+.sb-sec:first-of-type { margin-top: 0; }
+
+/* ---- Masthead: one row, wordmark left, run state right --------------- */
+.pg-mast {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    column-gap: 20px;
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--pg-ink);
+}
+.pg-mast-title {
+    color: var(--pg-ink);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+}
+.pg-mast-sub {
+    color: var(--pg-muted);
+    font-size: 12px;
+    margin-top: 3px;
+    letter-spacing: 0.01em;
+}
+.pg-mast-meta {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-family: var(--pg-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--pg-muted);
+    text-transform: uppercase;
+}
+.pg-mast-meta .pg-on { color: var(--pg-accent); font-weight: 500; }
+.pg-mast-meta .pg-off { color: var(--pg-muted); }
+
+/* ---- Metric strip: hairline-divided figures, no card boxes ----------- */
+.pg-strip {
+    display: flex;
+    flex-wrap: nowrap;
+    border-top: 1px solid var(--pg-rule);
+    border-bottom: 1px solid var(--pg-rule);
+    margin: 4px 0 20px;
+}
+/* flex-basis 0 keeps every figure on one row and lets long labels wrap instead,
+   so the strip never breaks into a half-row with a stray divider. Below 900px
+   it becomes a stacked list (see the media query). */
+.pg-strip-item {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 12px 18px 13px;
+    border-left: 1px solid var(--pg-rule);
+}
+.pg-strip-item:first-child { border-left: 0; padding-left: 0; }
+.pg-strip-label {
+    color: var(--pg-muted);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    min-height: 26px;  /* two lines: long labels wrap instead of truncating */
+}
+.pg-strip-value {
+    color: var(--pg-ink);
+    font-size: 23px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+@media (max-width: 900px) {
+    .pg-strip { flex-wrap: wrap; }
+    .pg-strip-item {
+        flex: 1 1 100%; border-left: 0; padding-left: 0;
+        border-top: 1px solid var(--pg-rule);
+    }
+    .pg-strip-item:first-child { border-top: 0; }
+    .pg-strip-label { min-height: 0; }
+}
+
+/* ---- Funnel: how the peer group narrowed, one line ------------------- */
+.pg-funnel {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 14px;
+    padding: 10px 0 12px;
+    border-bottom: 1px solid var(--pg-rule);
+    margin-bottom: 2px;
+}
+.pg-funnel-step { display: inline-flex; align-items: baseline; gap: 7px; }
+.pg-funnel-n {
+    font-family: var(--pg-mono);
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--pg-ink);
+    letter-spacing: -0.01em;
+}
+.pg-funnel-l {
+    font-size: 11px;
+    color: var(--pg-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.pg-funnel-arrow { color: var(--pg-rule-strong); font-size: 13px; }
+/* the last step is the number that actually drives the valuation */
+.pg-funnel-step:last-child .pg-funnel-n { color: var(--pg-accent); font-weight: 600; }
+
+/* ---- Empty state: a short lede plus a ruled method register ---------- */
+.pg-lede {
+    color: var(--pg-graphite);
+    font-size: 14.5px;
+    line-height: 1.6;
+    max-width: 62ch;
+    margin: 2px 0 26px;
+}
+.pg-methods {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 40px;
+    border-top: 1px solid var(--pg-rule);
+}
+.pg-method {
+    padding: 15px 0 17px;
+    border-bottom: 1px solid var(--pg-rule);
+}
+.pg-method-name {
+    color: var(--pg-ink);
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.pg-method-body {
+    color: var(--pg-muted);
+    font-size: 12.5px;
+    line-height: 1.55;
+    max-width: 52ch;
+}
+@media (max-width: 780px) {
+    .pg-methods { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- Sidebar expanders: the collapsed assumption blocks -------------- */
+[data-testid="stSidebar"] [data-testid="stExpander"] {
+    border: 0;
+    border-top: 1px solid var(--pg-rule);
+    margin: 0;
+}
+[data-testid="stSidebar"] [data-testid="stExpander"] summary {
+    padding: 9px 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pg-ink);
+}
+[data-testid="stSidebar"] [data-testid="stExpander"] summary:hover {
+    color: var(--pg-accent);
+}
+[data-testid="stSidebar"] [data-testid="stExpanderDetails"] { padding-bottom: 4px; }
+
+/* ---- Tabs: text row with a single accent underline ------------------- */
+div[data-baseweb="tab-list"] {
+    gap: 0;
+    border-bottom: 1px solid var(--pg-rule);
+    overflow-x: auto;
+}
+button[data-baseweb="tab"] {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 15px;
+    color: var(--pg-muted);
+    transition: color 120ms ease;
+    white-space: nowrap;
+}
+button[data-baseweb="tab"]:hover { color: var(--pg-ink); }
+button[data-baseweb="tab"][aria-selected="true"] { color: var(--pg-ink); font-weight: 600; }
+div[data-baseweb="tab-highlight"] { background-color: var(--pg-accent); height: 2px; }
+div[data-baseweb="tab-border"] { background-color: transparent; }
+
+/* ---- Inputs: square, hairline, accent focus -------------------------- */
+[data-testid="stSidebar"] input,
+[data-testid="stSidebar"] textarea,
+[data-testid="stSidebar"] [data-baseweb="select"] > div,
+[data-testid="stTextInput"] input, [data-testid="stTextArea"] textarea {
+    border-radius: 0 !important;
+    border-color: var(--pg-rule-strong) !important;
+    color: var(--pg-ink) !important;
+    font-size: 13px !important;
+}
+[data-testid="stSidebar"] input:focus,
+[data-testid="stSidebar"] textarea:focus,
+[data-testid="stSidebar"] [data-baseweb="select"] > div:focus-within {
+    border-color: var(--pg-accent) !important;
+    box-shadow: inset 0 0 0 1px var(--pg-accent) !important;
+}
+[data-testid="stSidebar"] textarea { font-size: 12.5px !important; }
+
+/* ---- Buttons: square. primary = accent fill, white label (8.4:1) ----- */
+.stButton > button, .stDownloadButton > button {
+    border-radius: 0 !important;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    border: 1px solid var(--pg-rule-strong);
+    color: var(--pg-ink);
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+    box-shadow: none !important;
+}
+.stButton > button:hover, .stDownloadButton > button:hover {
+    border-color: var(--pg-ink);
+    background: var(--pg-surface);
+}
+.stButton > button[kind="primary"],
+button[data-testid="stBaseButton-primary"] {
+    background: var(--pg-accent) !important;
+    border-color: var(--pg-accent) !important;
+    color: #FFFFFF !important;
+    font-weight: 600;
+}
+.stButton > button[kind="primary"]:hover,
+button[data-testid="stBaseButton-primary"]:hover {
+    background: #0B4739 !important;
+    border-color: #0B4739 !important;
+}
+.stButton > button:focus-visible, .stDownloadButton > button:focus-visible {
+    outline: 2px solid var(--pg-accent);
+    outline-offset: 1px;
+}
+
+/* ---- Dataframes: hairline grid, ruled header, mono figures ----------- */
+[data-testid="stDataFrame"] {
+    border-radius: 0;
+    border: 1px solid var(--pg-rule);
+}
+[data-testid="stDataFrame"] [role="columnheader"] {
+    background: var(--pg-surface) !important;
+    color: var(--pg-ink) !important;
+    font-family: var(--pg-sans) !important;
+    font-weight: 600 !important;
+    font-size: 11.5px !important;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid var(--pg-rule-strong) !important;
+}
+[data-testid="stDataFrame"] [role="gridcell"] { font-size: 12.5px !important; }
+[data-testid="stDataFrame"] [role="row"]:hover [role="gridcell"] {
+    background: var(--pg-surface) !important;
+}
+
+/* ---- Native metric fallback ----------------------------------------- */
+[data-testid="stMetric"] {
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--pg-rule);
+    border-radius: 0;
+    padding: 10px 0 0;
+}
+[data-testid="stMetricValue"] { color: var(--pg-ink); font-weight: 500; }
+[data-testid="stMetricLabel"] p {
+    color: var(--pg-muted); font-size: 10.5px; text-transform: uppercase;
+    letter-spacing: 0.09em;
+}
+
+/* ---- Expander (run log) --------------------------------------------- */
+[data-testid="stExpander"] {
+    border: 0;
+    border-top: 1px solid var(--pg-rule);
+    border-radius: 0;
+    background: transparent;
+}
+[data-testid="stExpander"] summary { font-size: 12.5px; color: var(--pg-graphite); }
+[data-testid="stExpander"] summary:hover { color: var(--pg-ink); }
+
+/* ---- Run log: light monospace ledger, not a neon terminal ------------ */
+.stCode pre, div[data-testid="stCode"] pre {
+    background: var(--pg-surface) !important;
+    color: var(--pg-graphite) !important;
+    font-family: var(--pg-mono) !important;
+    font-size: 11.5px !important;
+    line-height: 1.6 !important;
+    border: 1px solid var(--pg-rule);
+    border-radius: 0;
+}
+
+/* ---- Alerts: left-ruled notes, flat --------------------------------- */
+/* Severity lives on the parent's left rule, so the tint sits behind the whole
+   note. The content testid is on a child, hence :has(). */
+[data-testid="stAlert"] {
+    border-radius: 0;
+    border: 0;
+    border-left: 2px solid var(--pg-rule-strong);
+    background: var(--pg-surface);
+    padding: 10px 14px;
+    font-size: 13px;
+}
+[data-testid="stAlertContainer"] {
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+}
+[data-testid="stAlert"] p { color: var(--pg-graphite); font-size: 13px; }
+[data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]) {
+    border-left-color: var(--pg-accent);
+}
+[data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]) {
+    border-left-color: var(--pg-ochre);
+}
+[data-testid="stAlert"]:has([data-testid="stAlertContentError"]) {
+    border-left-color: var(--pg-brick);
+}
+[data-testid="stAlert"] [data-testid="stIconMaterial"] { display: none; }
+
+/* ---- Plotly containers: hairline frame ------------------------------ */
+[data-testid="stPlotlyChart"] {
+    border: 1px solid var(--pg-rule);
+    border-radius: 0;
+    padding: 4px;
+    background: var(--pg-paper);
+}
+
+/* ---- Bordered containers (method overview on the empty state) -------- */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-radius: 0 !important;
+}
+
+/* ---- Multiselect chips: square, quiet ------------------------------- */
+[data-baseweb="tag"] {
+    border-radius: 0 !important;
+    background: var(--pg-surface) !important;
+    color: var(--pg-ink) !important;
+    border: 1px solid var(--pg-rule-strong) !important;
+    font-family: var(--pg-mono) !important;
+    font-size: 11.5px !important;
+}
+[data-baseweb="tag"] svg { fill: var(--pg-graphite); }
+
+/* ---- Progress column (AI fit score) --------------------------------- */
+[data-testid="stDataFrame"] [role="gridcell"] div[style*="background"] { border-radius: 0 !important; }
+
+/* ---- Divider -------------------------------------------------------- */
+[data-testid="stDivider"] hr, hr { border-color: var(--pg-rule); }
+
+/* ---- Footer --------------------------------------------------------- */
+.pg-footer {
+    color: var(--pg-muted);
+    font-size: 11.5px;
+    padding: 14px 0 2px;
+    border-top: 1px solid var(--pg-rule);
+    margin-top: 20px;
+    letter-spacing: 0.01em;
+}
+.pg-footer b { color: var(--pg-graphite); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+    .stButton > button, .stDownloadButton > button, button[data-baseweb="tab"] {
+        transition: none;
+    }
+}

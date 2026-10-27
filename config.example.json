@@ -1,0 +1,18 @@
+{
+  "fmp_api_key": "YOUR_FMP_API_KEY_HERE",
+  "target": {
+    "name": "Example Software Co",
+    "sector": "Technology",
+    "industry": "Software",
+    "country": ["DE", "FR", "GB", "NL", "SE", "CH", "IT", "ES", "US"],
+    "revenue_min_usd": 100000000,
+    "revenue_max_usd": 500000000,
+    "market_cap_min_usd": 50000000,
+    "market_cap_max_usd": 5000000000,
+    "ebitda_margin_min": null,
+    "ebitda_margin_max": null
+  },
+  "limits": {
+    "max_candidates": 80
+  }
+}

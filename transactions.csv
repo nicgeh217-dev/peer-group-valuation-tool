@@ -1,0 +1,16 @@
+sector,date,target,acquirer,ev,revenue,ebitda,ebit
+Payments,2021-04,Nets,Nexi,9200,1500,540,360
+Payments,2020-11,Worldpay,FIS,43000,3900,1700,1100
+Payments,2019-08,First Data,Fiserv,39000,9000,3100,2200
+Payments,2017-07,Worldpay,Vantiv,12900,1500,720,520
+Payments,2021-01,Cardtronics,NCR,2500,1300,300,180
+Auto Parts,2022-03,Hella,Faurecia,6700,7000,650,420
+Auto Parts,2015-08,TRW,ZF Friedrichshafen,13500,17500,1400,950
+Auto Parts,2018-10,Cooper Standard,n/a,1900,3600,360,210
+Auto Parts,2021-05,Veoneer,SSW Partners,4500,1400,90,40
+MedTech,2021-09,Hillrom,Baxter,12400,3000,650,500
+MedTech,2020-03,Wright Medical,Stryker,5400,920,150,90
+Software,2022-01,Activision,Microsoft,68700,8800,3500,2900
+Software,2021-03,Nuance,Microsoft,19700,1400,400,250
+Pharma,2019-01,Celgene,Bristol-Myers,74000,15000,6500,5200
+Pharma,2023-03,Seagen,Pfizer,43000,2000,300,150

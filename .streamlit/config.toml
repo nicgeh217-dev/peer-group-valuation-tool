@@ -1,0 +1,30 @@
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = false
+# Bind to loopback only. Without this Streamlit listens on 0.0.0.0, i.e. the app
+# is reachable from the whole LAN (and via port forwarding from outside) with no
+# authentication in front of it. Remove this line only if remote access is wanted.
+address = "127.0.0.1"
+
+# Theme mirrors assets/style.css (institutional research-note palette).
+# Light is locked on purpose: Streamlit widget internals read these tokens,
+# so a CSS-only dark flip would restyle half the surface and leave the rest.
+[theme]
+base = "light"
+primaryColor = "#0F5C4B"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F6F7F8"
+textColor = "#14181D"
+linkColor = "#0F5C4B"
+borderColor = "#E2E4E8"
+baseRadius = "none"
+font = "sans-serif"
+# ink, accent, slate, brick, ochre - ordered so the first two carry the story
+# and the rest only appear when a chart genuinely needs more series.
+chartCategoricalColors = ["#14181D", "#0F5C4B", "#6E7A86", "#A3402C", "#8A6A16"]
+
+[theme.sidebar]
+backgroundColor = "#FFFFFF"
+borderColor = "#E2E4E8"
